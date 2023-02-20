@@ -13,7 +13,7 @@ public class WebClientConfiguration {
     public WebClient webClient(WebClient.Builder webClientBuilder, GitHubApiProperties properties) {
         return webClientBuilder.baseUrl(properties.getBaseUrl())
                 .defaultHeaders(httpHeaders -> {
-                    if (properties.getToken() != null) {
+                    if (!properties.getToken().isBlank()) {
                         httpHeaders.add(HttpHeaders.AUTHORIZATION, BEARER + properties.getToken());
                     }
                     httpHeaders.add(HttpHeaders.ACCEPT, properties.getAcceptHeader());
