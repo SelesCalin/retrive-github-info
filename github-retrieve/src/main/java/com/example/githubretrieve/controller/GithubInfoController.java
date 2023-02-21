@@ -4,7 +4,7 @@ import com.example.githubretrieve.service.GithubInfoService;
 import com.example.githubretrieve.dto.GithubRepoInfoDTO;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
@@ -15,8 +15,8 @@ public class GithubInfoController {
     public GithubInfoController(GithubInfoService githubInfoService) {
         this.githubInfoService = githubInfoService;
     }
-    @GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flux<GithubRepoInfoDTO> getInfoForUser(@RequestParam("username") String username) {
+    @GetMapping(value = "/github/users/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Flux<GithubRepoInfoDTO> getInfoForUser(@PathVariable("username") String username) {
         return githubInfoService.getGithubRepoInfo(username);
     }
 }

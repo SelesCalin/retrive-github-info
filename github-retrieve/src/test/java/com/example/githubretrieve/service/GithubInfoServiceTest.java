@@ -6,7 +6,6 @@ import com.example.githubretrieve.dto.BranchInfoDTO;
 import com.example.githubretrieve.dto.GithubRepoInfoDTO;
 import com.example.githubretrieve.exception.UserNotFoundException;
 import com.example.githubretrieve.model.*;
-import com.example.githubretrieve.service.GithubInfoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;

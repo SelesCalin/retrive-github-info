@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static com.example.githubretrieve.util.Utils.calculateNumberOfPages;
@@ -22,13 +23,14 @@ import static com.example.githubretrieve.util.Utils.calculateNumberOfPages;
 public class GithubInfoService {
 
     public static final Integer PAGE_SIZE = 30;
+    private static final int FIRST_PAGE = 1;
     public static final String USER_URL = "/users/{username}";
     public static final String REPOSITORY_URL = "/users/{username}/repos?per_page={page_size}&page={page}";
     public static final String BRANCH_URL = "/repos/{username}/{repoName}/branches?per_page={per_page}&page={page}";
     private final WebClient webClient;
 
     public GithubInfoService(WebClient webClient) {
-       this.webClient = webClient;
+        this.webClient = webClient;
     }
 
     public Flux<GithubRepoInfoDTO> getGithubRepoInfo(String username) {
@@ -37,7 +39,7 @@ public class GithubInfoService {
             return Flux.empty();
         }
         var numberOfPages = calculateNumberOfPages(userInfo.getPublicRepos(), PAGE_SIZE);
-        return Flux.fromStream(IntStream.rangeClosed(1, numberOfPages).boxed())
+        return Flux.fromStream(IntStream.rangeClosed(FIRST_PAGE, numberOfPages).boxed())
                 .flatMap(page -> getGithubRepos(username, page))
                 .filter(g -> !g.isFork())
                 .map(GitRepository::toGitRepoInfoDTO)
@@ -67,11 +69,11 @@ public class GithubInfoService {
     }
 
     private Flux<BranchInfoDTO> getBranches(String username, String repoName) {
-        return getBranchesOfRepo(username, repoName, 1)
+        return getBranchesOfRepo(username, repoName, FIRST_PAGE)
                 .map(Branch::toBranchInfoDTO);
     }
 
-    private Flux<Branch> getBranchesOfRepo(String username, String repoName, Integer page) {
+    private Flux<Branch> getBranchesOfRepo(String username, String repoName, final int page) {
         return webClient.get()
                 .uri(BRANCH_URL, username, repoName, PAGE_SIZE, page)
                 .retrieve()
@@ -80,8 +82,9 @@ public class GithubInfoService {
                     if (branches.length < PAGE_SIZE) {
                         return Flux.fromStream(Arrays.stream(branches));
                     } else {
+                        var nextPage = new AtomicInteger(page).incrementAndGet();
                         return Flux.fromStream(Arrays.stream(branches))
-                                .concatWith(getBranchesOfRepo(username, repoName, page + 1));
+                                .concatWith(getBranchesOfRepo(username, repoName, nextPage));
                     }
                 });
     }

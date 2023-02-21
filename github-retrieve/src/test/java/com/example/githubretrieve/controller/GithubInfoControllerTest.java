@@ -1,7 +1,7 @@
 package com.example.githubretrieve.controller;
 
-import com.example.githubretrieve.CustomError;
-import com.example.githubretrieve.ErrorCatalog;
+import com.example.githubretrieve.dto.ErrorResponse;
+import com.example.githubretrieve.controller.advice.ErrorCatalog;
 import com.example.githubretrieve.dto.BranchInfoDTO;
 import com.example.githubretrieve.dto.GithubRepoInfoDTO;
 import com.example.githubretrieve.exception.UserNotFoundException;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 @WebFluxTest(GithubInfoController.class)
 class GithubInfoControllerTest {
 
+    public static final String PATH = "/github/users/{username}";
     @Autowired
     private WebTestClient webTestClient;
 
@@ -33,7 +34,7 @@ class GithubInfoControllerTest {
     @Test
     void getGithubInfo_shouldReturn406WhenFormatIsNotAcceptable() {
         webTestClient.get()
-                .uri("/info?username={username}", "user")
+                .uri(PATH, "user")
                 .accept(MediaType.APPLICATION_XML)
                 .exchange()
                 .expectStatus()
@@ -45,12 +46,12 @@ class GithubInfoControllerTest {
         when(service.getGithubRepoInfo("user")).thenThrow(UserNotFoundException.class);
 
         webTestClient.get()
-                .uri("/info?username={username}", "user")
+                .uri(PATH, "user")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
                 .isEqualTo(404)
-                .expectBody(CustomError.class)
+                .expectBody(ErrorResponse.class)
                 .isEqualTo(ErrorCatalog.WRONG_USERNAME.getError());
     }
 
@@ -62,7 +63,7 @@ class GithubInfoControllerTest {
         when(service.getGithubRepoInfo(username)).thenReturn(response);
 
         webTestClient.get()
-                .uri("/info?username={username}", username)
+                .uri(PATH, username)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
