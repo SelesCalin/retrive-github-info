@@ -1,4 +1,4 @@
-package com.example.githubretrieve;
+package com.example.githubretrieve.service;
 
 
 import com.example.githubretrieve.config.GitHubApiProperties;
@@ -40,7 +40,7 @@ class GithubInfoServiceTest {
 
 
     @DynamicPropertySource
-    static void properties(DynamicPropertyRegistry r){
+    static void properties(DynamicPropertyRegistry r) {
         r.add("github.baseUrl", () -> "http://localhost:" + mockWebServer.getPort());
     }
 
